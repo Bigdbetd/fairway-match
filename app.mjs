@@ -2,6 +2,8 @@ import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { getAccount, registerAccount, sessionLifetimeMs, signIn, signOut } from './accounts.mjs';
 
+import { createMatch } from './matches.mjs';
+
 const cookieName = 'fairway_session';
 
 function readToken(req) {
@@ -61,12 +63,25 @@ export function createApp(db, { secureCookies = true } = {}) {
     res.sendStatus(204);
   });
 
+  app.use('/api/matches', async (req, res, next) => {
+    const account = await getAccount(db, readToken(req));
+    if (!account) return res.status(401).json({ error: 'Sign in to manage matches' });
+    res.locals.account = account;
+    next();
+  });
+
+  app.post('/api/matches', async (req, res) => {
+    const match = await createMatch(db, res.locals.account.id, req.body);
+    if (!match) return res.status(400).json({ error: 'Enter a course, a future tee time, a format, and 2–4 players' });
+    res.status(201).json({ match });
+  });
+
   app.use(express.static(fileURLToPath(new URL('./public/', import.meta.url))));
   app.use((error, _req, res, next) => {
     if (res.headersSent) return next(error);
     if (error.type === 'entity.parse.failed') return res.status(400).json({ error: 'Invalid JSON' });
     if (error.type === 'entity.too.large') return res.status(413).json({ error: 'Request is too large' });
-    console.error('Account request failed', error.code ?? error.name);
+    console.error('API request failed', error.code ?? error.name);
     res.status(500).json({ error: 'Unable to process the request' });
   });
   return app;
