@@ -1,0 +1,33 @@
+name: MVP Docker verification
+on:
+  pull_request:
+  push:
+    branches: [main, feature/fm-14-docker-deployment]
+
+permissions:
+  contents: read
+
+jobs:
+  compose:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-22.04, ubuntu-24.04]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+      - run: docker compose up --build -d
+      - name: Wait for the container and verify the round flow
+        run: |
+          curl --fail --retry 20 --retry-all-errors --retry-delay 2 http://127.0.0.1:8080/
+          FAIRWAY_TEST_URL=http://127.0.0.1:8080 node --test test/matches.test.mjs
+      - if: failure()
+        run: docker compose logs
+      - if: always()
+        run: docker compose down
