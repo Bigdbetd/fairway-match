@@ -14,6 +14,20 @@
     <section id="account" hidden>
       <h2 id="account-name"></h2>
       <button id="sign-out" type="button">Sign out</button>
+      <form id="create-match">
+        <h2>Create a match</h2>
+        <label>Golf course <input name="course" minlength="2" maxlength="100" required></label>
+        <label>Tee time (local) <input name="teeTime" type="datetime-local" required></label>
+        <label>Format
+          <select name="format">
+            <option value="casual">Casual round</option>
+            <option value="stroke">Stroke play</option>
+            <option value="match">Match play</option>
+          </select>
+        </label>
+        <label>Total players <input name="capacity" type="number" value="4" min="2" max="4" required></label>
+        <button>Create match</button>
+      </form>
     </section>
     <div id="forms" hidden>
       <form id="register">
