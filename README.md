@@ -1,6 +1,6 @@
 # Fairway Match
 
-Fairway Match is a planned golf matchmaking application for recreational golfers, college students, and local golf groups. It brings player discovery, tournament partner openings, and friendly competition into one place.
+Fairway Match is a golf matchmaking application in development for recreational golfers, college students, and local golf groups. It brings player discovery, tournament partner openings, and friendly competition into one place.
 
 ## Planned core features
 - Player profiles with city, skill level, and availability.
@@ -8,12 +8,12 @@ Fairway Match is a planned golf matchmaking application for recreational golfers
 - Partner finder for rounds and tournaments.
 - Squads that can challenge other groups.
 
-## Planned technology stack
-- Frontend: React with Vite
+## Technology stack
+- Frontend: HTML, CSS, and JavaScript served by Express for the account-access increment. React and Vite were in the original plan.
 - Backend: Node.js and Express REST API
 - Database: PostgreSQL
 - Containers: Docker and Docker Compose
-- Testing: Vitest, React Testing Library, and Supertest
+- Account testing: Node.js test runner with an embedded PostgreSQL engine (PGlite)
 - CI/CD: GitHub Actions
 - Deployment: Google Cloud Run for frontend/backend and Cloud SQL for PostgreSQL
 - Coding assistant: GitHub Copilot, with generated code reviewed and tested
@@ -26,7 +26,33 @@ The final release will include an AI match-description assistant through a backe
 - Sprint 2, Units 13-14: player discovery, partner finder, squads/challenges, agreed stakes/results, AI description assistant, expanded tests, and final documentation.
 
 ## Project status
-Planning stage. Application code and deployment are not yet implemented.
+FM-4 implements registration, sign-in, session restoration, and sign-out. Match creation, browsing, joining, profile editing, and cloud deployment are pending.
+
+## Run account access locally
+
+Use Node.js 22 or later and a PostgreSQL database. Give the application database role permission to create its account and session tables on startup.
+
+```sh
+npm ci
+export DATABASE_URL='postgresql://USER:PASSWORD@localhost:5432/fairway_match'
+npm start
+```
+
+Open http://localhost:8080, create an account, and then sign in with the same email and password. Refresh to check session restoration and select **Sign out** to end the session. Set `PORT` to override 8080. Keep database credentials outside source control. Set `NODE_ENV=production` when serving through HTTPS so the session cookie is marked Secure.
+
+Run `npm test` to verify the browser entry page and the account HTTP API against an embedded PostgreSQL engine. The test covers validation, normalized and duplicate email addresses, password hashing, failed sign-in, session expiry, and sign-out. Docker and Cloud Run verification belong to FM-14.
+
+## AI development example
+
+GitHub Copilot drafted `normalizeRegistration` in [registration.mjs](registration.mjs). This part of the draft normalizes account identifiers and preserves the exact password supplied by the golfer.
+
+```js
+const normalizedName = displayName.trim();
+const normalizedEmail = email.trim().toLowerCase();
+return { displayName: normalizedName, email: normalizedEmail, password };
+```
+
+ChatGPT adapted the implementation, used an escaped dot for the email domain separator, and added automated tests for malformed email and password preservation. It also implemented the Express and PostgreSQL integration and tested the HTTP account lifecycle.
 
 ## Documentation
 - [Jira backlog and sprint plan](https://drewsworkspace-98efd31d.atlassian.net/jira/software/projects/FM/boards/1/backlog)
@@ -36,4 +62,3 @@ Jira contains 3 epics, 11 user stories with acceptance criteria, 22 implementati
 
 Public viewing is not enabled: the current Free plans restrict anonymous permission configuration.
 
-The README will grow to include setup instructions, environment variables, API documentation, testing, and deployment instructions as implementation progresses.

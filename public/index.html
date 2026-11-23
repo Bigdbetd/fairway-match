@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fairway Match</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/account-ui.js"></script>
+</head>
+<body>
+  <main>
+    <h1>Fairway Match</h1>
+    <p id="status" role="status" aria-live="polite"></p>
+    <section id="account" hidden>
+      <h2 id="account-name"></h2>
+      <button id="sign-out" type="button">Sign out</button>
+    </section>
+    <div id="forms" hidden>
+      <form id="register">
+        <h2>Create an account</h2>
+        <label>Display name <input name="displayName" autocomplete="nickname" minlength="2" maxlength="60" required></label>
+        <label>Email <input name="email" type="email" autocomplete="email" maxlength="254" required></label>
+        <label>Password <input name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+        <button>Create account</button>
+      </form>
+      <form id="sign-in">
+        <h2>Sign in</h2>
+        <label>Email <input name="email" type="email" autocomplete="username" maxlength="254" required></label>
+        <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+        <button>Sign in</button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
