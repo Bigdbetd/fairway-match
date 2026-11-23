@@ -28,6 +28,11 @@
         <label>Total players <input name="capacity" type="number" value="4" min="2" max="4" required></label>
         <button>Create match</button>
       </form>
+      <section aria-labelledby="matches-heading">
+        <h2 id="matches-heading">Upcoming matches</h2>
+        <button id="refresh-matches" type="button">Refresh matches</button>
+        <ul id="match-list"></ul>
+      </section>
     </section>
     <div id="forms" hidden>
       <form id="register">

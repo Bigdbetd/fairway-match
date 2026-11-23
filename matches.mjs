@@ -31,3 +31,27 @@ export async function createMatch(db, organizerId, input) {
   `, [organizerId, course, new Date(teeTime), format, capacity]);
   return rows[0];
 }
+
+export async function listMatches(db, accountId) {
+  const { rows } = await db.query(`
+    SELECT ${matchFields}, $1 = ANY(players) AS joined
+    FROM golf_matches
+    WHERE tee_time > CURRENT_TIMESTAMP
+      AND (cardinality(players) < capacity OR $1 = ANY(players))
+    ORDER BY tee_time, id
+  `, [accountId]);
+  return rows;
+}
+
+export async function joinMatch(db, accountId, matchId) {
+  // One row update claims the slot. PostgreSQL rechecks these conditions
+  // after any concurrent update to the same match.
+  const { rows } = await db.query(`
+    UPDATE golf_matches
+    SET players = array_append(players, $1)
+    WHERE id = $2 AND tee_time > CURRENT_TIMESTAMP
+      AND cardinality(players) < capacity AND NOT ($1 = ANY(players))
+    RETURNING ${matchFields}
+  `, [accountId, matchId]);
+  return rows[0];
+}
