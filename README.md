@@ -34,7 +34,7 @@ The Unit 12 MVP lets a golfer register and sign in, create a round, and let anot
 | FM-7 Match creation | Implemented in [PR #2](https://github.com/Bigdbetd/fairway-match/pull/2) |
 | FM-8 Browse and join | Implemented in [PR #3](https://github.com/Bigdbetd/fairway-match/pull/3) |
 | FM-5 Profile editing | Deferred to keep Sprint 1 focused on the round flow |
-| FM-14 Deployment | Container configuration and Docker verification workflow added. A Cloud Run deployment still requires authorized project access and a PostgreSQL connection. |
+| FM-14 Deployment | Docker verified on two Ubuntu runners. The Cloud Run revision is live and serves the public landing page. |
 
 ## Run with Docker
 
@@ -55,6 +55,10 @@ FAIRWAY_TEST_URL=http://127.0.0.1:8080 node --test test/matches.test.mjs
 The [MVP Docker verification workflow](https://github.com/Bigdbetd/fairway-match/actions/workflows/mvp-docker.yml) runs the Docker Compose flow on Ubuntu 22.04 and 24.04.
 
 ## Manual Cloud Run deployment
+
+**Live MVP:** [Fairway Match on Cloud Run](https://fairway-match-1053892050255.us-central1.run.app). Revision `fairway-match-00001-v5x` serves all traffic in `us-central1`. An unauthenticated request returned the landing page with registration and sign-in forms. The production database connection comes from Secret Manager and points to hosted Neon PostgreSQL.
+
+The initial build failed because the build service account lacked permission to read the uploaded source archive (`storage.objects.get`). Granting Cloud Run Builder to that account resolved the error, and the Dockerfile-based retry deployed successfully. Docker Compose verification also passed on [Ubuntu 22.04 and 24.04](https://github.com/Bigdbetd/fairway-match/actions/runs/45095681324).
 
 Use a Google Cloud project with billing and the Cloud Run, Cloud Build, Artifact Registry, and Secret Manager APIs available. Create a Secret Manager secret called `fairway-match-database-url` containing the connection URL for a PostgreSQL database reachable from Cloud Run. Grant the service identity access to the secret. The database role must be able to create the application tables, and the database connection should use TLS as required by the provider.
 
