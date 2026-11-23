@@ -2,7 +2,7 @@ import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { getAccount, registerAccount, sessionLifetimeMs, signIn, signOut } from './accounts.mjs';
 
-import { createMatch } from './matches.mjs';
+import { createMatch, joinMatch, listMatches } from './matches.mjs';
 
 const cookieName = 'fairway_session';
 
@@ -74,6 +74,20 @@ export function createApp(db, { secureCookies = true } = {}) {
     const match = await createMatch(db, res.locals.account.id, req.body);
     if (!match) return res.status(400).json({ error: 'Enter a course, a future tee time, a format, and 2–4 players' });
     res.status(201).json({ match });
+  });
+
+  app.get('/api/matches', async (_req, res) => {
+    res.json({ matches: await listMatches(db, res.locals.account.id) });
+  });
+
+  app.post('/api/matches/:id/join', async (req, res) => {
+    const matchId = Number(req.params.id);
+    if (!Number.isInteger(matchId) || matchId < 1 || matchId > 2147483647) {
+      return res.status(400).json({ error: 'Invalid match identifier' });
+    }
+    const match = await joinMatch(db, res.locals.account.id, matchId);
+    if (!match) return res.status(409).json({ error: 'Match is unavailable or you already joined' });
+    res.json({ match });
   });
 
   app.use(express.static(fileURLToPath(new URL('./public/', import.meta.url))));
