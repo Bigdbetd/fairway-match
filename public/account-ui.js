@@ -51,6 +51,15 @@ handleForm('#sign-in', async (fields) => {
   showAccount(account);
 });
 
+handleForm('#create-match', async (fields) => {
+  await request('/api/matches', {
+    ...fields,
+    teeTime: new Date(fields.teeTime).toISOString(),
+    capacity: Number(fields.capacity)
+  });
+  status.textContent = 'Match created.';
+});
+
 document.querySelector('#sign-out').addEventListener('click', async () => {
   try {
     await request('/api/logout', {});
