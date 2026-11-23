@@ -1,0 +1,13 @@
+{
+  "name": "fairway-match",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test"
+  },
+  "engines": {"node": ">=22"},
+  "dependencies": {"express": "^5.1.0", "pg": "^8.16.0"},
+  "devDependencies": {"@electric-sql/pglite": "^0.4.0"}
+}
