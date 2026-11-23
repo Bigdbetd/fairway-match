@@ -1,0 +1,26 @@
+services:
+  app:
+    build: .
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://fairway:fairway_local@db:5432/fairway_match
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: fairway
+      POSTGRES_PASSWORD: fairway_local
+      POSTGRES_DB: fairway_match
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "fairway", "-d", "fairway_match"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - fairway-data:/var/lib/postgresql/data
+volumes:
+  fairway-data:
